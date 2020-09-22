@@ -13,6 +13,7 @@ import {
   I18nManager,
   EmitterSubscription,
 } from "react-native";
+// import Clipboard from "@react-native-community/clipboard";
 import styles from "./styles";
 import { isAutoFillSupported } from "./helpers/device";
 import { codeToArray } from "./helpers/codeToArray";
@@ -36,8 +37,8 @@ export default class OTPInputView extends Component<
   private fields: TextInput[] | null[] = [];
   private keyboardDidHideListener?: EmitterSubscription;
   private timer?: NodeJS.Timeout;
-  //   private hasCheckedClipBoard?: boolean;
-  //   private clipBoardCode?: string;
+  // private hasCheckedClipBoard?: boolean;
+  // private clipBoardCode?: string;
 
   constructor(props: InputProps) {
     super(props);
