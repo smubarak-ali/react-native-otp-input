@@ -1,21 +1,19 @@
 import React, { Component } from "react";
-import { View, TextInput, TouchableWithoutFeedback, Keyboard, Platform, I18nManager, } from "react-native";
-// import Clipboard from "@react-native-community/clipboard";
+import { View, TextInput, TouchableWithoutFeedback, Keyboard, I18nManager, } from "react-native";
+import Clipboard from "@react-native-community/clipboard";
 import styles from "./styles";
 import { isAutoFillSupported } from "./helpers/device";
 import { codeToArray } from "./helpers/codeToArray";
 export default class OTPInputView extends Component {
-    // private hasCheckedClipBoard?: boolean;
-    // private clipBoardCode?: string;
     constructor(props) {
         super(props);
         this.fields = [];
-        this.copyCodeFromClipBoardOnAndroid = () => {
-            if (Platform.OS === "android") {
-                this.checkPinCodeFromClipBoard();
-                this.timer = setInterval(this.checkPinCodeFromClipBoard, 400);
-            }
-        };
+        // private copyCodeFromClipBoardOnAndroid = () => {
+        //   if (Platform.OS === "android") {
+        //     this.checkPinCodeFromClipBoard();
+        //     this.timer = setInterval(this.checkPinCodeFromClipBoard, 400);
+        //   }
+        // };
         this.bringUpKeyBoardIfNeeded = () => {
             const { autoFocusOnLoad, pinCount } = this.props;
             const digits = this.getDigits();
@@ -41,22 +39,25 @@ export default class OTPInputView extends Component {
             }
         };
         this.checkPinCodeFromClipBoard = () => {
-            // const { pinCount, onCodeFilled } = this.props
-            // const regexp = new RegExp(`^\\d{${pinCount}}$`)
-            // Clipboard.getString().then(code => {
-            //     if (this.hasCheckedClipBoard && regexp.test(code) && (this.clipBoardCode !== code)) {
-            //         this.setState({
-            //             digits: code.split(""),
-            //         }, () => {
-            //             this.blurAllFields()
-            //             this.notifyCodeChanged()
-            //             onCodeFilled && onCodeFilled(code)
-            //         })
-            //     }
-            //     this.clipBoardCode = code
-            //     this.hasCheckedClipBoard = true
-            // }).catch(() => {
-            // })
+            const { pinCount, onCodeFilled } = this.props;
+            const regexp = new RegExp(`^\\d{${pinCount}}$`);
+            Clipboard.getString()
+                .then((code) => {
+                if (this.hasCheckedClipBoard &&
+                    regexp.test(code) &&
+                    this.clipBoardCode !== code) {
+                    this.setState({
+                        digits: code.split(""),
+                    }, () => {
+                        this.blurAllFields();
+                        this.notifyCodeChanged();
+                        onCodeFilled && onCodeFilled(code);
+                    });
+                }
+                this.clipBoardCode = code;
+                this.hasCheckedClipBoard = true;
+            })
+                .catch(() => { });
         };
         this.handleChangeText = (index, text) => {
             const { onCodeFilled, pinCount } = this.props;
@@ -170,7 +171,7 @@ export default class OTPInputView extends Component {
         }
     }
     componentDidMount() {
-        this.copyCodeFromClipBoardOnAndroid();
+        // this.copyCodeFromClipBoardOnAndroid();
         this.bringUpKeyBoardIfNeeded();
         this.keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", this.handleKeyboardDidHide);
     }
@@ -197,7 +198,7 @@ export default class OTPInputView extends Component {
                 this.focusField(0);
             }
         }}>
-          <View style={{
+          <View removeClippedSubviews={false} style={{
             flexDirection: I18nManager.isRTL ? "row-reverse" : "row",
             justifyContent: "space-between",
             alignItems: "center",
@@ -220,5 +221,6 @@ OTPInputView.defaultProps = {
     clearInputs: false,
     placeholderCharacter: "",
     selectionColor: "#000",
+    disableAutoFill: true,
 };
 //# sourceMappingURL=index.js.map

@@ -7,11 +7,12 @@ export default class OTPInputView extends Component<InputProps, OTPInputViewStat
     private fields;
     private keyboardDidHideListener?;
     private timer?;
+    private hasCheckedClipBoard?;
+    private clipBoardCode?;
     constructor(props: InputProps);
     UNSAFE_componentWillReceiveProps(nextProps: InputProps): void;
     componentDidMount(): void;
     componentWillUnmount(): void;
-    private copyCodeFromClipBoardOnAndroid;
     bringUpKeyBoardIfNeeded: () => void;
     getDigits: () => string[];
     private handleKeyboardDidHide;

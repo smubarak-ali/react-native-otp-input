@@ -9,11 +9,10 @@ import {
   TextInput,
   TouchableWithoutFeedback,
   Keyboard,
-  Platform,
   I18nManager,
   EmitterSubscription,
 } from "react-native";
-// import Clipboard from "@react-native-community/clipboard";
+import Clipboard from "@react-native-community/clipboard";
 import styles from "./styles";
 import { isAutoFillSupported } from "./helpers/device";
 import { codeToArray } from "./helpers/codeToArray";
@@ -32,13 +31,14 @@ export default class OTPInputView extends Component<
     clearInputs: false,
     placeholderCharacter: "",
     selectionColor: "#000",
+    disableAutoFill: true,
   };
 
   private fields: TextInput[] | null[] = [];
   private keyboardDidHideListener?: EmitterSubscription;
   private timer?: NodeJS.Timeout;
-  // private hasCheckedClipBoard?: boolean;
-  // private clipBoardCode?: string;
+  private hasCheckedClipBoard?: boolean;
+  private clipBoardCode?: string;
 
   constructor(props: InputProps) {
     super(props);
@@ -57,7 +57,7 @@ export default class OTPInputView extends Component<
   }
 
   componentDidMount() {
-    this.copyCodeFromClipBoardOnAndroid();
+    !this.props.disableAutoFill && this.copyCodeFromClipBoardOnAndroid();
     this.bringUpKeyBoardIfNeeded();
     this.keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidHide",
@@ -108,22 +108,30 @@ export default class OTPInputView extends Component<
   };
 
   checkPinCodeFromClipBoard = () => {
-    // const { pinCount, onCodeFilled } = this.props
-    // const regexp = new RegExp(`^\\d{${pinCount}}$`)
-    // Clipboard.getString().then(code => {
-    //     if (this.hasCheckedClipBoard && regexp.test(code) && (this.clipBoardCode !== code)) {
-    //         this.setState({
-    //             digits: code.split(""),
-    //         }, () => {
-    //             this.blurAllFields()
-    //             this.notifyCodeChanged()
-    //             onCodeFilled && onCodeFilled(code)
-    //         })
-    //     }
-    //     this.clipBoardCode = code
-    //     this.hasCheckedClipBoard = true
-    // }).catch(() => {
-    // })
+    const { pinCount, onCodeFilled } = this.props;
+    const regexp = new RegExp(`^\\d{${pinCount}}$`);
+    Clipboard.getString()
+      .then((code) => {
+        if (
+          this.hasCheckedClipBoard &&
+          regexp.test(code) &&
+          this.clipBoardCode !== code
+        ) {
+          this.setState(
+            {
+              digits: code.split(""),
+            },
+            () => {
+              this.blurAllFields();
+              this.notifyCodeChanged();
+              onCodeFilled && onCodeFilled(code);
+            }
+          );
+        }
+        this.clipBoardCode = code;
+        this.hasCheckedClipBoard = true;
+      })
+      .catch(() => {});
   };
 
   private handleChangeText = (index: number, text: string) => {
@@ -287,6 +295,7 @@ export default class OTPInputView extends Component<
           }}
         >
           <View
+            removeClippedSubviews={false}
             style={{
               flexDirection: I18nManager.isRTL ? "row-reverse" : "row",
               justifyContent: "space-between",
