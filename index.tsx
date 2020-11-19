@@ -36,8 +36,8 @@ export default class OTPInputView extends Component<
   private fields: TextInput[] | null[] = [];
   private keyboardDidHideListener?: EmitterSubscription;
   private timer?: NodeJS.Timeout;
-  private hasCheckedClipBoard?: boolean;
-  private clipBoardCode?: string;
+  // private hasCheckedClipBoard?: boolean;
+  // private clipBoardCode?: string;
 
   constructor(props: InputProps) {
     super(props);
